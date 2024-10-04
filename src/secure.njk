@@ -1,12 +1,4 @@
----
-permalink:
-  dynamic: "/secure/"
-secure:
-  unauthenticatedRedirect: "/"
----
 <h2>{{ user.name or user.full_name or user.localizedFirstName }}, this page is secure.</h2>
-
-{% include "logout.njk" %}
 
 <img src="{{ user.avatar_url or user.avatar or user.picture or user["profilePicture"]["displayImage~"]["elements"][0]["identifiers"][0]["identifier"] }}" alt="Avatar for {{ user.name or user.full_name or user.localizedFirstName }}">
 

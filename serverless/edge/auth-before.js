@@ -15,11 +15,17 @@ exports.handler = async (event, context) => {
 
   const csrfToken = generateCsrfToken();
   const provider = event.queryStringParameters.provider;
+  const secureHost = event.headers.Referer
   
-  let oauth = new OAuth(provider);
+  let oauth = new OAuth(provider, secureHost);
   let config = oauth.config;
 
-  const redirectUrl = (new URL(event.queryStringParameters.securePath, config.secureHost)).toString();
+  console.log(event)
+
+  const redirectUrl = (new URL(event.multiValueQueryStringParameters.securePath, config.secureHost)).toString();
+
+  console.log("Redirect URI from auth before: ", redirectUrl);
+  console.log("Redirect URI from auth: ", config.redirect_uri);
 
   /* Generate authorizationURI */
   const authorizationURI = oauth.authorizationCode.authorizeURL({

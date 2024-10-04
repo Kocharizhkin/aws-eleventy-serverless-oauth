@@ -1,11 +1,13 @@
 {
   "name": "demo-eleventy-serverless-oauth",
   "version": "1.0.0",
-  "description": "A demo showing how to implement OAuth using Eleventy Serverless (on Netlify)",
+  "description": "A demo showing how to implement OAuth using Eleventy Serverless",
   "scripts": {
     "build": "npx @11ty/eleventy",
     "start": "npx @11ty/eleventy --serve",
-    "dev": "netlify dev"
+    "dev": "npx serverless offline",
+    "deploy": "npx serverless deploy --region eu-north-1",
+    "s3-local": "aws --endpoint-url=http://localhost:4569 s3 sync _site s3://eleventy --profile s3local"
   },
   "keywords": [],
   "author": {
@@ -15,13 +17,21 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "netlify-cli": "^6.14.7"
+    "serverless-apigw-binary": "^0.4.4",
+    "serverless-s3-local": "^0.8.5"
   },
   "dependencies": {
     "@11ty/eleventy": "1.0.0-beta.4",
+    "aws-sdk": "^2.1691.0",
     "cookie": "^0.4.1",
     "dotenv": "^10.0.0",
     "node-fetch": "^2.3.0",
+    "nunjucks": "^3.2.4",
+    "serverless": "^4.4.4",
+    "serverless-s3-sync": "^3.3.0",
     "simple-oauth2": "^4.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

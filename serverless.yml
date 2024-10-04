@@ -1,0 +1,60 @@
+service: serverless-oauth
+provider:
+  name: aws
+  runtime: nodejs18.x
+  environment:
+      NETLIFY_OAUTH_CLIENT_ID: ${env:NETLIFY_OAUTH_CLIENT_ID}
+      NETLIFY_OAUTH_CLIENT_SECRET: ${env:NETLIFY_OAUTH_CLIENT_SECRET}
+      GITHUB_OAUTH_CLIENT_ID: ${env:GITHUB_OAUTH_CLIENT_ID}
+      GITHUB_OAUTH_CLIENT_SECRET: ${env:GITHUB_OAUTH_CLIENT_SECRET}
+      GITLAB_OAUTH_CLIENT_ID: ${env:GITLAB_OAUTH_CLIENT_ID}
+      GITLAB_OAUTH_CLIENT_SECRET: ${env:GITLAB_OAUTH_CLIENT_SECRET}
+      SLACK_OAUTH_CLIENT_ID: ${env:SLACK_OAUTH_CLIENT_ID}
+      SLACK_OAUTH_CLIENT_SECRET: ${env:SLACK_OAUTH_CLIENT_SECRET}
+      LINKEDIN_OAUTH_CLIENT_ID: ${env:LINKEDIN_OAUTH_CLIENT_ID}
+      LINKEDIN_OAUTH_CLIENT_SECRET: ${env:LINKEDIN_OAUTH_CLIENT_SECRET}
+      BUCKET_NAME: ${env:BUCKET_NAME}
+
+resources:
+  Resources:
+    SiteBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${env:BUCKET_NAME}
+
+functions:
+  edge:
+    handler: serverless/edge/index.handler
+    events:
+      - http:
+          path: /
+          method: get
+      - http:
+          path: /secure
+          method: get
+
+  auth-before:
+    handler: serverless/edge/auth-before.handler
+    events:
+      - http:
+          path: /auth_before
+          method: get
+
+  auth-callback:
+    handler: serverless/edge/auth-callback.handler
+    events:
+      - http:
+          path: /auth_callback
+          method: get
+          cors: true
+
+plugins:
+  - serverless-s3-sync
+# Uncomment for local development
+#  - serverless-s3-local
+#  - serverless-offline
+
+custom:
+  s3Sync:
+    - bucketName: eleventy-f0u1q
+      localDir: _site

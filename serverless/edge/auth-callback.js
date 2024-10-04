@@ -2,32 +2,45 @@ const cookie = require("cookie");
 const querystring = require("querystring");
 const { OAuth, tokens, getCookie } = require("./util/auth.js");
 
-// Function to handle netlify auth callback
 exports.handler = async (event, context) => {
-  // Exit early
-  if (!event.queryStringParameters) {
+
+  // Handle both AWS Lambda and serverless-offline query params
+  const queryParams = event.queryStringParameters || event.query;
+
+  // Exit early if queryStringParameters (or query) are missing
+  if (!queryParams) {
     return {
       statusCode: 401,
       body: JSON.stringify({
         error: 'Not authorized',
       })
-    }
+    };
   }
 
-  // Grant the grant code
-  const code = event.queryStringParameters.code;
+  // Extract code and state from the query parameters
+  const code = queryParams.code;
+  const state = querystring.parse(queryParams.state);
 
-  // state helps mitigate CSRF attacks & Restore the previous state of your app
-  const state = querystring.parse(event.queryStringParameters.state)
+  console.log("[auth-callback]", 'event', event)
 
   try {
-    // console.log( "[auth-callback] Cookies", event.headers.cookie );
-    let cookies = cookie.parse(event.headers.cookie);
+    // Check if the cookie header exists
+    if (!event.headers || !event.headers.Cookie) {
+      throw new Error("No cookies present in the request.");
+    }
+
+    // Parse the cookies
+    let cookies = cookie.parse(event.headers.Cookie || event.headers.cookie);
+
+    // Check the CSRF token
+    if (cookies._11ty_oauth_csrf !== state.csrf) {
+      throw new Error("Missing or invalid CSRF token.");
+    }
     if(cookies._11ty_oauth_csrf !== state.csrf) {
       throw new Error("Missing or invalid CSRF token.");
     }
 
-    let oauth = new OAuth(state.provider);
+    let oauth = new OAuth(state.provider, secureHost = 'https://l1f6bhxot5.execute-api.eu-north-1.amazonaws.com/dev/');
     let config = oauth.config;
 
     // Take the grant code and exchange for an accessToken
@@ -39,11 +52,11 @@ exports.handler = async (event, context) => {
     });
 
     const token = accessToken.token.access_token;
-    // console.log( "[auth-callback]", { token } );
+    console.log( "[auth-callback]", { token } );
 
     // The noop key here is to workaround Netlify keeping query params on redirects
     // https://answers.netlify.com/t/changes-to-redirects-with-query-string-parameters-are-coming/23436/11
-    const URI = `${state.url}?noop`;
+    const URI = state.url;
     // console.log( "[auth-callback]", { URI });
 
     /* Redirect user to authorizationURI */
