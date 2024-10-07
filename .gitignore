@@ -3,9 +3,6 @@
 node_modules
 _site
 package-lock.json
-.netlify
-netlify/functions/dynamic/**
-!netlify/functions/dynamic/index.js
 serverless/edge/**
 !serverless/edge/index.js
 !serverless/edge/s3.js
@@ -14,5 +11,4 @@ serverless/edge/**
 !serverless/edge/util/
 !serverless/edge/util/**
 .serverless
-netlify
 .DS_Store

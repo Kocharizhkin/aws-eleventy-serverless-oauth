@@ -69,7 +69,6 @@ class OAuth {
       }
     });
 
-    console.log("[auth] getUser response status", response.status);
     if (response.status !== 200) {
       throw new Error(`Error ${await response.text()}`);
     }

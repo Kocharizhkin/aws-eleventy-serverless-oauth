@@ -14,18 +14,15 @@ async function handler(event, context) {
   let provider;
   let secureHost = 'https://' + event.headers.Host + '/dev/'
 
-  console.log("Event received:", JSON.stringify(event));
 
   // Parse cookies for authentication tokens
   if (event.headers && (event.headers.cookie || event.headers.Cookie)) {
     let cookies = cookie.parse(event.headers.Cookie || event.headers.cookie);
     if (cookies._11ty_oauth_token) {
       authToken = tokens.decode(cookies._11ty_oauth_token);
-      console.log("Auth token decoded:", authToken);
     }
     if (cookies._11ty_oauth_provider) {
       provider = cookies._11ty_oauth_provider;
-      console.log("OAuth provider:", provider);
     }
   }
 
@@ -33,10 +30,8 @@ async function handler(event, context) {
   let authError;
   try {
     if (authToken && provider) {
-      console.log("Attempting to authenticate user...", secureHost);
       let oauth = new OAuth(provider, secureHost = secureHost);
       user = await oauth.getUser(authToken);
-      console.log("User authenticated:", user);
     }
   } catch (e) {
     authError = e;
@@ -46,9 +41,7 @@ async function handler(event, context) {
   // Handle the root path ("/")
   if (path === '/' || path === '') {
     try {
-      console.log("Fetching index.html from S3...");
       const indexHtml = await s3.fetchFileFromS3('index.html');
-      console.log("index.html successfully fetched from S3");
 
       return {
         isBase64Encoded: false,
@@ -74,7 +67,6 @@ async function handler(event, context) {
   // Handle secure path
   if (path === '/secure') {
     if (authError || !user) {
-      console.log('Redirecting to root due to authError or missing user');
       return {
         isBase64Encoded: false,
         statusCode: 302,
@@ -84,16 +76,12 @@ async function handler(event, context) {
         },
         body: ''
       };
-    } else {
-      console.log('User is authenticated, no errors');
     }
 
     try {
-      console.log("Fetching secure.njk from S3...");
+      
       const secureNunjucksTemplate = await s3.fetchFileFromS3('secure.njk');
-      console.log("secure.njk successfully fetched from S3");
 
-      console.log("Rendering secure page using Nunjucks...");
       const html = nunjucks.renderString(secureNunjucksTemplate, { user });
 
       return {
@@ -105,7 +93,6 @@ async function handler(event, context) {
         body: html
       };
     } catch (error) {
-      console.error("Error rendering secure.njk:", error);
       return {
         isBase64Encoded: false,
         statusCode: 500,
@@ -118,7 +105,6 @@ async function handler(event, context) {
   }
 
   // Default response for unhandled paths
-  console.log(`Unhandled path: ${path}`);
   return {
     isBase64Encoded: false,
     statusCode: 404,

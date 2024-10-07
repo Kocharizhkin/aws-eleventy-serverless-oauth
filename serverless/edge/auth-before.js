@@ -20,12 +20,7 @@ exports.handler = async (event, context) => {
   let oauth = new OAuth(provider, secureHost);
   let config = oauth.config;
 
-  console.log(event)
-
   const redirectUrl = (new URL(event.multiValueQueryStringParameters.securePath, config.secureHost)).toString();
-
-  console.log("Redirect URI from auth before: ", redirectUrl);
-  console.log("Redirect URI from auth: ", config.redirect_uri);
 
   /* Generate authorizationURI */
   const authorizationURI = oauth.authorizationCode.authorizeURL({

@@ -21,8 +21,6 @@ exports.handler = async (event, context) => {
   const code = queryParams.code;
   const state = querystring.parse(queryParams.state);
 
-  console.log("[auth-callback]", 'event', event)
-
   try {
     // Check if the cookie header exists
     if (!event.headers || !event.headers.Cookie) {
@@ -52,7 +50,6 @@ exports.handler = async (event, context) => {
     });
 
     const token = accessToken.token.access_token;
-    console.log( "[auth-callback]", { token } );
 
     // The noop key here is to workaround Netlify keeping query params on redirects
     // https://answers.netlify.com/t/changes-to-redirects-with-query-string-parameters-are-coming/23436/11
@@ -78,8 +75,6 @@ exports.handler = async (event, context) => {
     }
 
   } catch (e) {
-    console.log("[auth-callback]", 'Access Token Error', e.message)
-    console.log("[auth-callback]", e)
     return {
       statusCode: e.statusCode || 500,
       body: JSON.stringify({
