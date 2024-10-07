@@ -26,7 +26,12 @@ npm install
 aws configure
 ```
 
-4. Run in local mode
+4. Build 11ty
+```
+npm run build
+```
+
+5. Run in local mode
 ```
 npm run dev
 ```
