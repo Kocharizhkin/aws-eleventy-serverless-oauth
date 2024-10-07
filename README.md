@@ -3,7 +3,6 @@
 A demo project using OAuth to secure some of your Eleventy Serverless routes.
 
 * [Demo](https://demo-eleventy-serverless-oauth.netlify.app)
-* [Deploy your own to Netlify](https://app.netlify.com/start/deploy?repository=https://github.com/11ty/demo-eleventy-serverless-oauth)
 
 ---
 
@@ -12,12 +11,27 @@ A demo project using OAuth to secure some of your Eleventy Serverless routes.
 
 ## Run locally
 
+1. Install dependencies
 ```
 npm install
+```
+
+2. Add the aws IAM user credentials to ".env" file:
+  * `AWS_ACCESS_KEY_ID`
+  * `AWS_SECRET_ACCESS_KEY`
+  * `BUCKET_NAME`
+
+3. Configure the aws cli
+```
+aws configure
+```
+
+4. Run in local mode
+```
 npm run dev
 ```
 
-Navigate to http://localhost:8888
+Navigate to http://localhost:3000/dev/edge
 
 The full login flow is supported on localhost, assuming the Redirect URI set in your OAuth Application is configured correctly.
 
@@ -37,76 +51,3 @@ This example includes Netlify, GitHub, and GitLab providers. If you only want a 
     * GitLab: `GITLAB_OAUTH_CLIENT_ID` and `GITLAB_OAUTH_CLIENT_SECRET`
     * Slack: `SLACK_OAUTH_CLIENT_ID` and `SLACK_OAUTH_CLIENT_SECRET`
     * LinkedIn: `LINKEDIN_OAUTH_CLIENT_ID` and `LINKEDIN_OAUTH_CLIENT_SECRET`
-
-For Netlify deployment you'll need to add these environment variables in the Netlify web app by defining them in Settings -> Build & Deploy -> Environment.
-
-Tip: For applications that don’t let you define multiple redirect URIs, I like to set up two OAuth applications: one for production and one for local development. That way I don’t have to worry about juggling the different Redirect URIs in the provider’s web interface. e.g. this will need to be `http://localhost:8888/.netlify/functions/auth-callback` for local development.
-
-## Add this to your Eleventy site
-
-You will need a:
-* static login form
-* a secure serverless template
-
-### Static login form
-
-Does not have to be in a serverless template. Put it in a shared header on your site!
-
-```
-<form action="/.netlify/functions/auth-before">
-  <input type="hidden" name="securePath" value="/YOUR_PATH_HERE/">
-  <button type="submit" name="provider" value="netlify">Login with Netlify</button>
-  <button type="submit" name="provider" value="github">Login with GitHub</button>
-  <button type="submit" name="provider" value="gitlab">Login with GitLab</button>
-  <button type="submit" name="provider" value="slack">Login with Slack</button>
-  <button type="submit" name="provider" value="linkedin">Login with Linkedin</button>
-</form>
-```
-
-`securePath` should contain the URL to the secured serverless template (see next section).
-
-### Serverless Templates
-
-Serverless templates can be secured with the following front matter (this example is YAML):
-
-```
----
-permalink:
-  dynamic: "/YOUR_PATH_HERE/"
-secure:
-  unauthenticatedRedirect: "/"
----
-```
-
-The above will secure the path and redirect any unauthenticated requests to the URL of your choosing.
-
-You can also conditionally render content inside of an insecure serverless template. Just check for the `user` global (you can rename this in `netlify/functions/dynamic/index.js`). Here’s an example of that:
-
-```
----
-permalink:
-  dynamic: "/YOUR_PATH_HERE/"
----
-{% if user %}
-You are logged in!
-<!-- Show Logout form -->
-{% else %}
-<!-- Show Login form -->
-{% endif %} 
-```
-
-You can see an example of this in [the `everything-serverless` branch](https://github.com/11ty/demo-eleventy-serverless-oauth/compare/everything-serverless).
-
-#### More detail
-
-You may need to familiarize yourself with [Eleventy Serverless templates](https://www.11ty.dev/docs/plugins/serverless/#usage).
-
-Relevant files:
-* `.eleventy.js` adds the Elventy Serverless bundler plugin for the `dynamic` permalink.
-* Eleventy Serverless `.gitignore` additions: `netlify/functions/dynamic/**` and 
-`!netlify/functions/dynamic/index.js`
-* Copy to your project:
-  * `netlify/functions/dynamic/index.js`
-  * `netlify/functions/util/*`
-  * `netlify/functions/auth-before.js`
-  * `netlify/functions/auth-callback.js`
