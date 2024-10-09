@@ -26,6 +26,7 @@ async function handler(event, context) {
     }
   }
 
+  // authentification if tokens are presented, if not redirect to /
   let user;
   let authError;
   try {
@@ -81,7 +82,7 @@ async function handler(event, context) {
     try {
       
       const secureNunjucksTemplate = await s3.fetchFileFromS3('secure.njk');
-
+      //render njk template with user info
       const html = nunjucks.renderString(secureNunjucksTemplate, { user });
 
       return {
