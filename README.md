@@ -26,12 +26,17 @@ npm install
 aws configure
 ```
 
-4. Build 11ty
+4. Configure the serverless
+```
+serverless
+```
+
+5. Build 11ty
 ```
 npm run build
 ```
 
-5. Run in local mode
+6. Run in local mode
 ```
 npm run dev
 ```
