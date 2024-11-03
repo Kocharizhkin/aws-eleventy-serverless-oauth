@@ -18,6 +18,9 @@ provider:
       LINKEDIN_OAUTH_CLIENT_ID: ${env:LINKEDIN_OAUTH_CLIENT_ID}
       LINKEDIN_OAUTH_CLIENT_SECRET: ${env:LINKEDIN_OAUTH_CLIENT_SECRET}
       BUCKET_NAME: ${env:BUCKET_NAME}
+      AWS_ACCESS_KEY_ID: ${env:AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${env:AWS_SECRET_ACCESS_KEY}
+      AWS_ENDPOINT: ${env:AWS_ENDPOINT}
 
   iam:
     role:
@@ -143,12 +146,14 @@ functions:
           cors: true
 
 plugins:
-  - serverless-s3-sync
+#  - serverless-s3-sync
 # Uncomment for local development
-#  - serverless-s3-local
-#  - serverless-offline
+  - serverless-s3-local
+  - serverless-offline
 
 custom:
   s3Sync:
     - bucketName: eleventy-f0u1q
       localDir: _site
+  s3:
+    directory: /tmp
